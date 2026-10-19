@@ -12,15 +12,33 @@ const glados = async () => {
       headers: { ...headers, 'content-type': 'application/json' },
       body: '{"token":"glados.cloud"}',
     }).then((r) => r.json())
-    const status = await fetch('https://glados.cloud/api/user/status', {
-      method: 'GET',
-      headers,
-    }).then((r) => r.json())
-    return [
-      'Checkin OK',
-      `${checkin.message}`,
-      `Left Days ${Number(status.data.leftDays)}`,
-    ]
+    const statusResponse = await fetch(
+  'https://glados.cloud/api/user/status',
+  {
+    method: 'GET',
+    headers,
+  }
+)
+
+const status = await statusResponse.json()
+
+console.log('Status HTTP:', statusResponse.status)
+console.log('Status message:', status.message ?? '无')
+console.log('Status code:', status.code ?? '无')
+console.log('Status data exists:', status.data != null)
+
+if (!statusResponse.ok || !status.data) {
+  throw new Error(
+    `会员状态查询失败，HTTP ${statusResponse.status}，` +
+    `message: ${status.message ?? '无'}`
+  )
+}
+
+return [
+  'Checkin Response',
+  `${checkin.message}`,
+  `Left Days ${Number(status.data.leftDays ?? 0)}`,
+]
   } catch (error) {
     return [
       'Checkin Error',
