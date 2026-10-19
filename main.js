@@ -46,7 +46,26 @@ const notify = async (contents) => {
 }
 
 const main = async () => {
-  await notify(await glados())
+  const result = await glados()
+
+  if (!result) {
+    console.error('GLADOS Cookie 未配置')
+    process.exitCode = 1
+    return
+  }
+
+  console.log('===== GLaDOS 签到结果 =====')
+  console.log(result.join('\n'))
+  console.log('==========================')
+
+  if (result[0] === 'Checkin Error') {
+    process.exitCode = 1
+  }
+
+  await notify(result)
 }
 
-main()
+main().catch(error => {
+  console.error('程序执行失败:', error.message)
+  process.exitCode = 1
+})
